@@ -61,7 +61,6 @@ const initDB = async () => {
         is_featured  BOOLEAN DEFAULT FALSE,
         is_new       BOOLEAN DEFAULT FALSE,
         created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
       )
     `);
 
@@ -90,7 +89,6 @@ const initDB = async () => {
         shipping_country VARCHAR(100),
         coupon_code     VARCHAR(50),
         created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
 
@@ -103,8 +101,6 @@ const initDB = async () => {
         name        VARCHAR(200) NOT NULL,
         price       DECIMAL(10,2) NOT NULL,
         quantity    INT NOT NULL DEFAULT 1,
-        FOREIGN KEY (order_id)   REFERENCES orders(id)   ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
       )
     `);
 
@@ -118,8 +114,6 @@ const initDB = async () => {
         rating      INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
         comment     TEXT,
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE SET NULL
       )
     `);
 
@@ -131,8 +125,6 @@ const initDB = async () => {
         product_id  INT NOT NULL,
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY unique_wish (user_id, product_id),
-        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
       )
     `);
 
