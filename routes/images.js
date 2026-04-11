@@ -8,12 +8,11 @@ const router = express.Router();
 const initProductImages = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS product_images (
-      id         INT AUTO_INCREMENT PRIMARY KEY,
-      product_id INT NOT NULL,
-      url        VARCHAR(500) NOT NULL,
-      label      VARCHAR(50) DEFAULT 'View',
-      sort_order INT DEFAULT 0,
-      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  product_id  INT NOT NULL,
+  url         VARCHAR(500) NOT NULL,
+  label       VARCHAR(50) DEFAULT 'View',
+  sort_order  INT DEFAULT 0
     )
   `);
 };
