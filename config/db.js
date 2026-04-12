@@ -60,7 +60,7 @@ const initDB = async () => {
         image        VARCHAR(500),
         is_featured  BOOLEAN DEFAULT FALSE,
         is_new       BOOLEAN DEFAULT FALSE,
-        created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -88,7 +88,7 @@ const initDB = async () => {
         shipping_zip    VARCHAR(20),
         shipping_country VARCHAR(100),
         coupon_code     VARCHAR(50),
-        created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -100,7 +100,7 @@ const initDB = async () => {
         product_id  INT,
         name        VARCHAR(200) NOT NULL,
         price       DECIMAL(10,2) NOT NULL,
-        quantity    INT NOT NULL DEFAULT 1,
+        quantity    INT NOT NULL DEFAULT 1
       )
     `);
 
@@ -113,7 +113,7 @@ const initDB = async () => {
         user_name   VARCHAR(100),
         rating      INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
         comment     TEXT,
-        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -123,8 +123,8 @@ const initDB = async () => {
         id          INT AUTO_INCREMENT PRIMARY KEY,
         user_id     INT NOT NULL,
         product_id  INT NOT NULL,
-        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_wish (user_id, product_id),
+        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        UNIQUE KEY unique_wish (user_id, product_id)
       )
     `);
 
