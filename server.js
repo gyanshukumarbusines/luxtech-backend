@@ -19,6 +19,7 @@ app.use("/api/email",         require("./routes/email").router);
 app.use("/api/reviews",       require("./routes/reviews"));
 app.use("/api/images",        require("./routes/images"));
 app.use("/api/notifications", require("./routes/notifications"));
+app.use("/api/razorpay", require("./routes/razorpay"));
 
 app.get("/", (req, res) => {
   res.json({ success: true, message: "⚡ LuxTech API v2.0 is running!", version: "2.0.0" });
