@@ -78,7 +78,7 @@ LuxTech Admin System
 });
 
 // Order status notification
-router.post("/order/:id/status", protect, adminOnly, async (req, res) => {
+router.put("/order/:id/status", protect, adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
