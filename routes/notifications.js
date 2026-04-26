@@ -93,6 +93,7 @@ router.put("/order/:id/status", protect, adminOnly, async (req, res) => {
     }
 
     const order = orders[0];
+    await pool.query("UPDATE orders SET status=? WHERE id=?", [status, id]);
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
