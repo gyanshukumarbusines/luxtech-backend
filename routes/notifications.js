@@ -77,4 +77,34 @@ LuxTech Admin System
   }
 });
 
+// Order status notification
+router.post("/order/:id/status", protect, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const [orders] = await pool.query(
+      "SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id WHERE o.id = ?",
+      [id]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    const order = orders[0];
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: order.email,
+      subject: `Order ${order.order_number} - Status Updated to ${status}`,
+      text: `Hi ${order.name},\n\nYour order ${order.order_number} status has been updated to: ${status}\n\nThank you for shopping with LuxTech!`,
+    });
+
+    res.json({ success: true, message: "Notification sent!" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
