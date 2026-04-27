@@ -227,4 +227,22 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
   res.json({ received: true });
 });
 
+// Cancel order
+router.put("/:id/cancel", protect, async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      "SELECT * FROM orders WHERE id=? AND user_id=?",
+      [req.params.id, req.user.id]
+    );
+    if (orders.length === 0)
+      return res.status(404).json({ success: false, message: "Order not found" });
+    if (orders[0].status !== "pending")
+      return res.status(400).json({ success: false, message: "Only pending orders can be cancelled" });
+    await pool.query("UPDATE orders SET status='cancelled' WHERE id=?", [req.params.id]);
+    res.json({ success: true, message: "Order cancelled successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
