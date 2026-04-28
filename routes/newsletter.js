@@ -18,6 +18,13 @@ router.post("/subscribe", async (req, res) => {
     if (!email) return res.status(400).json({ success: false, message: "Email required" });
 
     // Save to database
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        email      VARCHAR(150) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
     await pool.query(
       "INSERT IGNORE INTO newsletter_subscribers (email) VALUES (?)",
       [email]
