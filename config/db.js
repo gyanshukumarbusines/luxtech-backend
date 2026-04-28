@@ -138,7 +138,16 @@ const initDB = async () => {
         expires_at  DATETIME
       )
     `);
-
+    
+// NEWSLETTER SUBSCRIBERS table
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        email      VARCHAR(150) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
     // Seed default coupons
     await conn.query(`
       INSERT IGNORE INTO coupons (code, discount) VALUES
