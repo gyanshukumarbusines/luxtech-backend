@@ -100,7 +100,7 @@ router.get("/latest/all", async (req, res) => {
     const [reviews] = await pool.query(
       `SELECT r.*, u.name AS user_name
        FROM reviews r LEFT JOIN users u ON r.user_id = u.id
-       ORDER BY r.created_at DESC LIMIT 3`
+       ORDER BY r.created_at DESC
     );
     res.json({ success: true, reviews });
   } catch (err) {
