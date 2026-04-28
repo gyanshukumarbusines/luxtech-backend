@@ -94,4 +94,18 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
+// ── GET /api/reviews/latest ───────────────────────────────────────
+router.get("/latest/all", async (req, res) => {
+  try {
+    const [reviews] = await pool.query(
+      `SELECT r.*, u.name AS user_name
+       FROM reviews r LEFT JOIN users u ON r.user_id = u.id
+       ORDER BY r.created_at DESC LIMIT 3`
+    );
+    res.json({ success: true, reviews });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
