@@ -200,6 +200,32 @@ router.put("/admin/:id/status", protect, adminOnly, async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid status" });
 
     await pool.query("UPDATE orders SET status = ? WHERE id = ?", [status, req.params.id]);
+
+    // Send notification email
+    try {
+      const { Resend } = require("resend");
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const [orders] = await pool.query(
+        "SELECT o.*, u.email, u.name FROM orders o JOIN users u ON o.user_id = u.id WHERE o.id = ?",
+        [req.params.id]
+      );
+      if (orders.length) {
+        await resend.emails.send({
+          from: "LuxTech <onboarding@resend.dev>",
+          to: orders[0].email,
+          subject: `✦ Order ${orders[0].order_number} - Status Updated`,
+          html: `<div style="background:#0A0A0B;padding:40px;color:#F0EDE8;font-family:Helvetica">
+            <h1 style="color:#C8A96E">LUXTECH</h1>
+            <p>Hi ${orders[0].name},</p>
+            <p>Your order <strong>${orders[0].order_number}</strong> status: <strong style="color:#C8A96E">${status}</strong></p>
+            <p>Thank you for shopping with LuxTech!</p>
+          </div>`,
+        });
+      }
+    } catch(emailErr) {
+      console.log("Notification email error:", emailErr.message);
+    }
+
     res.json({ success: true, message: `Order status updated to ${status}` });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -225,24 +251,6 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
   }
 
   res.json({ received: true });
-});
-
-// Cancel order
-router.put("/:id/cancel", protect, async (req, res) => {
-  try {
-    const [orders] = await pool.query(
-      "SELECT * FROM orders WHERE id=? AND user_id=?",
-      [req.params.id, req.user.id]
-    );
-    if (orders.length === 0)
-      return res.status(404).json({ success: false, message: "Order not found" });
-    if (orders[0].status !== "pending")
-      return res.status(400).json({ success: false, message: "Only pending orders can be cancelled" });
-    await pool.query("UPDATE orders SET status='cancelled' WHERE id=?", [req.params.id]);
-    res.json({ success: true, message: "Order cancelled successfully" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
 });
 
 module.exports = router;
