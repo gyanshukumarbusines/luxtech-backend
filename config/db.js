@@ -9,7 +9,7 @@ const pool = mysql2.createPool({
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME     || "luxtech_db",
   waitForConnections: true,
-  connectionLimit:    10,
+  connectionLimit:    4,
 });
 
 // ── Create Tables ────────────────────────────────────────────────
