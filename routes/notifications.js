@@ -1,20 +1,12 @@
 const express = require("express");
 const { pool } = require("../config/db");
 const { protect, adminOnly } = require("../middleware/auth");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Configure email
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// Low stock check - products with stock < 10
+// Low stock check
 router.get("/low-stock", protect, adminOnly, async (req, res) => {
   try {
     const [products] = await pool.query(
@@ -22,63 +14,26 @@ router.get("/low-stock", protect, adminOnly, async (req, res) => {
     );
 
     if (products.length === 0) {
-      return res.json({
-        success: true,
-        message: "✅ All products have sufficient stock!",
-        products: [],
-      });
+      return res.json({ success: true, message: "✅ All products have sufficient stock!", products: [] });
     }
 
-    // Send email with low stock alert
-    const productList = products
-      .map((p) => `• ${p.name}: ${p.stock} units left`)
-      .join("\n");
+    const productList = products.map((p) => `• ${p.name}: ${p.stock} units left`).join("<br>");
 
-    const emailContent = `
-🚨 LOW STOCK ALERT - LuxTech
-
-The following products have stock below 10 units:
-
-${productList}
-
-Total low-stock products: ${products.length}
-
-Please reorder these items as soon as possible!
-
----
-LuxTech Admin System
-    `;
-
-    try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Send to your email
-        subject: `⚠️ Low Stock Alert - ${products.length} products`,
-        text: emailContent,
-      });
-      console.log("Low stock alert email sent successfully");
-    } catch (emailErr) {
-      console.log("Email send error:", emailErr.message);
-      // Don't fail the request if email fails
-    }
-
-    res.json({
-      success: true,
-      message: `⚠️ ${products.length} product(s) have low stock! Alert sent to ${process.env.EMAIL_USER}`,
-      products: products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        stock: p.stock,
-      })),
+    await resend.emails.send({
+      from: "LuxTech <onboarding@resend.dev>",
+      to: process.env.EMAIL_USER,
+      subject: `⚠️ Low Stock Alert - ${products.length} products`,
+      html: `<h2>🚨 LOW STOCK ALERT</h2><p>${productList}</p>`,
     });
+
+    res.json({ success: true, message: `⚠️ ${products.length} product(s) have low stock!`, products });
   } catch (err) {
-    console.error("Low stock check error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // Order status notification
-router.put("/order/:id/status", protect, adminOnly, async (req, res) => {
+router.post("/order/:id/status", protect, adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -93,13 +48,17 @@ router.put("/order/:id/status", protect, adminOnly, async (req, res) => {
     }
 
     const order = orders[0];
-    await pool.query("UPDATE orders SET status=? WHERE id=?", [status, id]);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: "LuxTech <onboarding@resend.dev>",
       to: order.email,
-      subject: `Order ${order.order_number} - Status Updated to ${status}`,
-      text: `Hi ${order.name},\n\nYour order ${order.order_number} status has been updated to: ${status}\n\nThank you for shopping with LuxTech!`,
+      subject: `✦ Order ${order.order_number} - Status Updated`,
+      html: `<div style="background:#0A0A0B;padding:40px;color:#F0EDE8;font-family:Helvetica">
+        <h1 style="color:#C8A96E">LUXTECH</h1>
+        <p>Hi ${order.name},</p>
+        <p>Your order <strong>${order.order_number}</strong> status has been updated to: <strong style="color:#C8A96E">${status}</strong></p>
+        <p>Thank you for shopping with LuxTech!</p>
+      </div>`,
     });
 
     res.json({ success: true, message: "Notification sent!" });
