@@ -11,7 +11,7 @@ const sendOrderEmail = async (order, items, userEmail, userName) => {
     <tr>
       <td style="padding:10px;border-bottom:1px solid #2A2A32;color:#F0EDE8">${i.name}</td>
       <td style="padding:10px;border-bottom:1px solid #2A2A32;color:#F0EDE8;text-align:center">${i.quantity}</td>
-      <td style="padding:10px;border-bottom:1px solid #2A2A32;color:#C8A96E;text-align:right">$${Number(i.price).toLocaleString()}</td>
+      <td style="padding:10px;border-bottom:1px solid #2A2A32;color:#C8A96E;text-align:right">₹${Number(i.price).toLocaleString()}</td>
     </tr>
   `).join("");
 
@@ -29,7 +29,7 @@ const sendOrderEmail = async (order, items, userEmail, userName) => {
         </thead>
         <tbody>${itemRows}</tbody>
       </table>
-      <p style="color:#C8A96E;font-size:20px;text-align:right">Total: $${Number(order.total).toLocaleString()}</p>
+      <p style="color:#C8A96E;font-size:20px;text-align:right">Total: ₹${Number(order.total).toLocaleString()}</p>
       <p style="color:#7A7A8A;text-align:center">© 2026 LuxTech</p>
     </div>
   `;
