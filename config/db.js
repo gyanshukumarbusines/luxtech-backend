@@ -123,8 +123,8 @@ const initDB = async () => {
         id          INT AUTO_INCREMENT PRIMARY KEY,
         user_id     INT NOT NULL,
         product_id  INT NOT NULL,
-        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        UNIQUE KEY unique_wish (user_id, product_id)
+        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE INDEX unique_wish (user_id, product_id)
       )
     `);
 
